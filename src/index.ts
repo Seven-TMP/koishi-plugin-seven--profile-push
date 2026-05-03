@@ -2,9 +2,9 @@ import { Context, Schema, Logger, Session } from 'koishi'
 
 export const name = 'seventmp-profile-push'
 
-export const usage = `## SevenTMP 主页推送
+export const usage = `## Seven欧卡教程网 主页推送
 
-监控 SevenTMP 主页最新帖子并推送到指定群聊。
+监控 Seven欧卡教程网 主页最新帖子并推送到指定群聊。
 
 ### 群内指令
 - \`ets推送状态\` — 查看当前群的推送状态（所有人可用）
@@ -185,7 +185,7 @@ export function apply(ctx: Context, config: Config) {
       : '暂无'
 
     return [
-      '[SevenTMP 推送状态]',
+      '[Seven欧卡教程网 推送状态]',
       `当前群推送: ${isGroupEnabled(groupId) ? '已开启' : '未开启'}`,
       `检查间隔: ${normalizeInterval()} 秒`,
       `接口地址: ${config.postApiUrl}`,
@@ -293,13 +293,13 @@ export function apply(ctx: Context, config: Config) {
 
     if (msg === 'ets推送开启') {
       enableGroup(groupId)
-      await session.send('[SevenTMP 推送]\n当前群已开启主页帖子推送')
+      await session.send('[Seven欧卡教程网 推送]\n当前群已开启主页帖子推送')
       return
     }
 
     if (msg === 'ets推送关闭') {
       disableGroup(groupId)
-      await session.send('[SevenTMP 推送]\n当前群已关闭主页帖子推送')
+      await session.send('[Seven欧卡教程网 推送]\n当前群已关闭主页帖子推送')
       return
     }
 
@@ -309,12 +309,12 @@ export function apply(ctx: Context, config: Config) {
 
       const reply = result.post
         ? [
-            '[SevenTMP 推送]',
+            '[Seven欧卡教程网 推送]',
             result.reason || '检查完成',
             result.post.title,
             result.post.url,
           ].join('\n')
-        : ['[SevenTMP 推送]', result.reason || '检查失败'].join('\n')
+        : ['[Seven欧卡教程网 推送]', result.reason || '检查失败'].join('\n')
       await session.send(reply)
       return
     }
@@ -330,7 +330,7 @@ export function apply(ctx: Context, config: Config) {
     checkLatestPostAndNotify().catch(error => {
       logger.warn(`初始化检查异常: ${String(error)}`)
     })
-    logger.info('SevenTMP 主页推送插件已启动')
+    logger.info('Seven欧卡教程网 主页推送插件已启动')
   })
 
   // 插件卸载时清理定时器
@@ -339,6 +339,6 @@ export function apply(ctx: Context, config: Config) {
       clearInterval(timer)
       timer = null
     }
-    logger.info('SevenTMP 主页推送插件已停止')
+    logger.info('Seven欧卡教程网 主页推送插件已停止')
   })
 }
