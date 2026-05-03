@@ -1,0 +1,40 @@
+{
+  "name": "koishi-plugin-seventmp-profile-push",
+  "description": "监控 SevenTMP 主页最新帖子并推送到指定群聊",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "author": "Seven",
+  "keywords": [
+    "koishi",
+    "plugin",
+    "seventmp",
+    "push",
+    "rss"
+  ],
+  "koishi": {
+    "description": {
+      "zh": "监控 SevenTMP 主页最新帖子并推送到指定群聊"
+    },
+    "service": {
+      "required": [],
+      "optional": []
+    }
+  },
+  "peerDependencies": {
+    "koishi": "^4.17.0"
+  },
+  "devDependencies": {
+    "koishi": "^4.17.0",
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -b -w"
+  }
+}
