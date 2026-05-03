@@ -161,7 +161,10 @@ export function apply(ctx: Context, config: Config) {
 
       const post = posts[0] ?? {}
       const title = decodeHtml(String(post.title ?? '')) || '[无标题]'
-      const url = post.url || post.link || config.profileUrl
+      const postId = post.id
+      const url = postId !== undefined && postId !== null
+        ? `https://ets2.seventmp.cn/post/${postId}`
+        : (post.url || post.link || config.profileUrl)
 
       return { title, url }
     } catch (error) {
