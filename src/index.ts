@@ -202,13 +202,19 @@ export function apply(ctx: Context, config: Config) {
     targetGroups: string[],
     message: string,
   ): Promise<void> {
-    for (const bot of ctx.bots) {
-      for (const groupId of targetGroups) {
+    for (const groupId of targetGroups) {
+      let sent = false
+      for (const bot of ctx.bots) {
         try {
           await bot.sendMessage(groupId, message)
-        } catch (error) {
-          logger.warn(`推送到群 ${groupId} 失败: ${String(error)}`)
+          sent = true
+          break
+        } catch {
+          // 当前 bot 发送失败，尝试下一个
         }
+      }
+      if (!sent) {
+        logger.warn(`推送到群 ${groupId} 失败: 没有可用的 bot`)
       }
     }
   }
