@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/koishi-plugin-seventmp-profile-push?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-seventmp-profile-push)
 
-监控 Seven教程网主页最新帖子并推送到指定群聊。
+监控 Seven欧卡教程网主页最新帖子并推送到指定群聊。
 
 ## 功能
 
