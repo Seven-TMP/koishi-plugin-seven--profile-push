@@ -39,4 +39,4 @@ npm install koishi-plugin-seventmp-profile-push
 
 ## 感谢
 
-[鲁班](https://github.com/suoboge）对本项目的测试
+[鲁班](https://github.com/suoboge) 对本项目的测试
