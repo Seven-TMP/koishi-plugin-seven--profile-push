@@ -36,3 +36,7 @@ npm install koishi-plugin-seventmp-profile-push
 ```
 
 然后在 Koishi 控制台的插件配置中添加并启用本插件。
+
+## 感谢
+
+[鲁班]（https://github.com/suoboge）对本项目的测试
