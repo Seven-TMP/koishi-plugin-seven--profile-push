@@ -15,11 +15,13 @@ export const usage = `## Seven欧卡教程网 主页推送
 
 // ========== 配置定义 ==========
 
+// 检查间隔写死为 1800 秒（30 分钟），不提供配置项
+const CHECK_INTERVAL_SECONDS = 1800
+
 export interface Config {
   ownerQQs: string
   profileUrl: string
   postApiUrl: string
-  checkIntervalSeconds: number
   enabledGroups: string[]
 }
 
@@ -33,10 +35,6 @@ export const Config: Schema<Config> = Schema.object({
   postApiUrl: Schema.string()
     .default('https://ets2.seventmp.cn/api/users/13/posts?page=1&limit=1')
     .description('帖子接口地址，返回 JSON 格式'),
-  checkIntervalSeconds: Schema.number()
-    .min(10)
-    .default(60)
-    .description('检查间隔（秒），最小 10 秒'),
   enabledGroups: Schema.array(Schema.string())
     .default([])
     .description('启用推送的群号列表'),
@@ -73,7 +71,7 @@ export function apply(ctx: Context, config: Config) {
   // ---------- 工具函数 ----------
 
   function normalizeInterval(): number {
-    return Math.max(10, config.checkIntervalSeconds || 60)
+    return CHECK_INTERVAL_SECONDS
   }
 
   function getOwnerSet(): Set<string> {
