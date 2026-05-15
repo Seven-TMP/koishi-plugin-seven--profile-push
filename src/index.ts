@@ -18,6 +18,12 @@ export const usage = `## Seven欧卡教程网 主页推送
 // 检查间隔写死为 1800 秒（30 分钟），不提供配置项
 const CHECK_INTERVAL_SECONDS = 1800
 
+// 当前插件版本（发版时同步修改 package.json 中的 version）
+const CURRENT_VERSION = '1.0.2'
+// 远端最新版本元数据 URL（GitHub raw 的 package.json）
+const LATEST_VERSION_URL =
+  'https://raw.githubusercontent.com/Seven-TMP/koishi-plugin-seven--profile-push/main/package.json'
+
 export interface Config {
   ownerQQs: string
   profileUrl: string
@@ -67,11 +73,57 @@ export function apply(ctx: Context, config: Config) {
 
   let checking = false
   let timer: ReturnType<typeof setInterval> | null = null
+  // 远端最新版本号（运行时缓存，不持久化）
+  let latestVersion = ''
 
   // ---------- 工具函数 ----------
 
   function normalizeInterval(): number {
     return CHECK_INTERVAL_SECONDS
+  }
+
+  // ---------- 版本检查 ----------
+
+  function parseVersion(v: string): number[] {
+    return (v.match(/\d+/g) || []).map(Number)
+  }
+
+  function isNewerVersion(remote: string, local: string): boolean {
+    const a = parseVersion(remote)
+    const b = parseVersion(local)
+    const n = Math.max(a.length, b.length)
+    for (let i = 0; i < n; i++) {
+      const x = a[i] ?? 0
+      const y = b[i] ?? 0
+      if (x > y) return true
+      if (x < y) return false
+    }
+    return false
+  }
+
+  function hasUpdate(): boolean {
+    return !!latestVersion && isNewerVersion(latestVersion, CURRENT_VERSION)
+  }
+
+  async function checkLatestVersion(): Promise<void> {
+    try {
+      const data = await ctx.http.get(LATEST_VERSION_URL)
+      const remote = String((data as any)?.version || '')
+      if (!remote) return
+      latestVersion = remote
+      if (isNewerVersion(remote, CURRENT_VERSION)) {
+        logger.warn(
+          `发现新版本 v${remote}，当前 v${CURRENT_VERSION}，请尽快更新`,
+        )
+      }
+    } catch {
+      // 版本检查失败不影响主功能
+    }
+  }
+
+  function buildUpdateNotice(): string {
+    if (!hasUpdate()) return ''
+    return `\n\n⚠️ 推送插件有新版本 v${latestVersion}（当前 v${CURRENT_VERSION}），请管理员尽快更新`
   }
 
   function getOwnerSet(): Set<string> {
@@ -174,7 +226,7 @@ export function apply(ctx: Context, config: Config) {
   // ---------- 推送逻辑 ----------
 
   function buildPostMessage(post: LatestPost): string {
-    return [post.title, post.url].join('\n')
+    return [post.title, post.url].join('\n') + buildUpdateNotice()
   }
 
   function buildStatusMessage(groupId: string): string {
@@ -185,8 +237,14 @@ export function apply(ctx: Context, config: Config) {
         })
       : '暂无'
 
+    let versionLine = `插件版本: v${CURRENT_VERSION}`
+    if (hasUpdate()) {
+      versionLine += ` → 有新版本 v${latestVersion} 可更新`
+    }
+
     return [
       '[Seven欧卡教程网 推送状态]',
+      versionLine,
       `当前群推送: ${isGroupEnabled(groupId) ? '已开启' : '未开启'}`,
       `检查间隔: ${normalizeInterval()} 秒`,
       `接口地址: ${config.postApiUrl}`,
@@ -275,6 +333,7 @@ export function apply(ctx: Context, config: Config) {
 
     const intervalMs = normalizeInterval() * 1000
     timer = setInterval(() => {
+      checkLatestVersion().catch(() => { /* 忽略 */ })
       checkLatestPostAndNotify().catch(error => {
         logger.warn(`定时检查异常: ${String(error)}`)
       })
@@ -334,10 +393,11 @@ export function apply(ctx: Context, config: Config) {
   // 插件启动时初始化定时器并执行首次检查
   ctx.on('ready', () => {
     resetTimer()
+    checkLatestVersion().catch(() => { /* 忽略 */ })
     checkLatestPostAndNotify().catch(error => {
       logger.warn(`初始化检查异常: ${String(error)}`)
     })
-    logger.info('Seven欧卡教程网 主页推送插件已启动')
+    logger.info(`Seven欧卡教程网 主页推送插件已启动 (v${CURRENT_VERSION})`)
   })
 
   // 插件卸载时清理定时器
